@@ -1,0 +1,58 @@
+@import "tailwindcss";
+
+:root {
+  --bg: 252 249 246;
+  --card: 255 255 255;
+  --ink: 35 33 32;
+  --muted: 114 103 101;
+  --stroke: 229 221 216;
+  --blush: 236 193 205;
+  --rose: 210 120 145;
+  --sand: 235 228 221;
+  --apricot: 244 176 132;
+  --cream: 255 246 238;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+body {
+  color: rgb(var(--ink));
+  background:
+    radial-gradient(900px 420px at 20% 10%, rgba(var(--blush), 0.22), transparent 60%),
+    radial-gradient(950px 520px at 90% 15%, rgba(var(--apricot), 0.15), transparent 55%),
+    linear-gradient(180deg, rgb(var(--bg)), rgb(var(--bg)));
+}
+
+::selection {
+  background: rgba(var(--blush), 0.55);
+}
+
+/* --- SprayCursor: soft dots at pointer, drift up & fade over 1s --- */
+.spray-cursor-particle {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  border-radius: 9999px;
+  filter: blur(6px);
+  box-shadow: 0 0 20px 4px currentColor;
+  pointer-events: none;
+  animation: spray-cursor-drift-fade 1s ease-out forwards;
+}
+
+@keyframes spray-cursor-drift-fade {
+  from {
+    opacity: 0.95;
+    transform: translate(-50%, -50%);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% - 40px));
+  }
+}

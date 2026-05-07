@@ -1,0 +1,300 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Scent Sisters API",
+    "version": "1.0.0",
+    "description": "Public reads (GET); writes require API key (`x-api-key`). Data is persisted in Supabase."
+  },
+  "servers": [{ "url": "/", "description": "Same origin" }],
+  "tags": [{ "name": "perfumes" }],
+  "components": {
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-api-key"
+      }
+    },
+    "schemas": {
+      "Notes": {
+        "type": "object",
+        "required": ["top", "middle", "base"],
+        "properties": {
+          "top": { "type": "array", "items": { "type": "string" } },
+          "middle": { "type": "array", "items": { "type": "string" } },
+          "base": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "Perfume": {
+        "type": "object",
+        "required": ["id", "name", "brand", "category", "rating", "review", "notes"],
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "brand": { "type": "string" },
+          "category": {
+            "type": "string",
+            "enum": ["collection", "wishlist", "sampled"]
+          },
+          "rating": { "type": "integer", "enum": [1, 2, 3, 4, 5] },
+          "review": { "type": "string" },
+          "notes": { "$ref": "#/components/schemas/Notes" }
+        }
+      },
+      "PerfumeCreate": {
+        "type": "object",
+        "required": ["name", "brand", "category", "rating", "review", "notes"],
+        "properties": {
+          "name": { "type": "string" },
+          "brand": { "type": "string" },
+          "category": {
+            "type": "string",
+            "enum": ["collection", "wishlist", "sampled"]
+          },
+          "rating": { "type": "integer", "enum": [1, 2, 3, 4, 5] },
+          "review": { "type": "string" },
+          "notes": { "$ref": "#/components/schemas/Notes" }
+        }
+      },
+      "PerfumePatch": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "brand": { "type": "string" },
+          "category": {
+            "type": "string",
+            "enum": ["collection", "wishlist", "sampled"]
+          },
+          "rating": { "type": "integer", "enum": [1, 2, 3, 4, 5] },
+          "review": { "type": "string" },
+          "notes": { "$ref": "#/components/schemas/Notes" }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": { "type": "string" }
+        }
+      },
+      "ListResponse": {
+        "type": "object",
+        "properties": {
+          "perfumes": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Perfume" }
+          }
+        }
+      },
+      "OneResponse": {
+        "type": "object",
+        "properties": {
+          "perfume": { "$ref": "#/components/schemas/Perfume" }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/api/perfumes": {
+      "get": {
+        "tags": ["perfumes"],
+        "summary": "List perfumes",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "schema": { "type": "string" },
+            "description": "Optional search substring (brand, name, accord)"
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "schema": { "type": "string", "enum": ["collection", "wishlist", "sampled"] },
+            "description": "Optional category filter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ListResponse" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["perfumes"],
+        "summary": "Create perfume",
+        "security": [{ "ApiKeyAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/PerfumeCreate" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "perfume": { "$ref": "#/components/schemas/Perfume" }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          },
+          "500": {
+            "description": "Server misconfiguration",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/perfumes/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": { "type": "string" }
+        }
+      ],
+      "get": {
+        "tags": ["perfumes"],
+        "summary": "Get perfume by id",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/OneResponse" }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": ["perfumes"],
+        "summary": "Update perfume",
+        "security": [{ "ApiKeyAuth": [] }],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/PerfumePatch" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/OneResponse" }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          },
+          "500": {
+            "description": "Server misconfiguration",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["perfumes"],
+        "summary": "Delete perfume",
+        "security": [{ "ApiKeyAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": { "deleted": { "type": "boolean" } }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          },
+          "500": {
+            "description": "Server misconfiguration",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
