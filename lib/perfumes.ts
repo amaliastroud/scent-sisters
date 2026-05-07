@@ -99,6 +99,9 @@ export const wishlistNeedToSampleIds = new Set(["18", "19", "20"]);
 
 export const wishlistIds = new Set([...wishlistSampledIds, ...wishlistNeedToSampleIds]);
 
+// Back-compat alias for older modules that expect `perfumes`.
+export const perfumes: Perfume[] = seedPerfumes;
+
 export function getAllPerfumes() {
   return perfumes;
 }

@@ -16,8 +16,6 @@ export function listPerfumes(query?: { q?: string }) {
     (p) =>
       p.name.toLowerCase().includes(q) ||
       p.brand.toLowerCase().includes(q) ||
-      p.season.toLowerCase().includes(q) ||
-      p.sentiment.toLowerCase().includes(q) ||
       p.review.toLowerCase().includes(q) ||
       p.notes.top.some((n) => n.toLowerCase().includes(q)) ||
       p.notes.middle.some((n) => n.toLowerCase().includes(q)) ||
@@ -34,12 +32,10 @@ export function createPerfume(input: PerfumeInput) {
     id: input.id ?? nextId(),
     name: input.name,
     brand: input.brand,
+    category: input.category,
+    rating: input.rating,
     review: input.review,
     notes: input.notes,
-    imageLabel: input.imageLabel,
-    sentiment: input.sentiment,
-    season: input.season,
-    ...(input.rating !== undefined ? { rating: input.rating } : {}),
   };
 
   perfumes = [perfume, ...perfumes];
