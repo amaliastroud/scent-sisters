@@ -3,6 +3,12 @@ import { requireApiKey } from "@/lib/apiAuth";
 import { PerfumeCreateSchema } from "@/lib/perfumeSchemas";
 import { createPerfume, listPerfumes } from "@/lib/perfumeRepo";
 import { seedPerfumes } from "@/lib/perfumes";
+import {
+  createInStore,
+  ensureSeeded,
+  listFromStore,
+} from "@/lib/inMemoryPerfumeStore";
+import { withUnsplashImages } from "@/lib/unsplash";
 
 export async function GET(req: NextRequest) {
   const url = new URL(req.url);
@@ -10,6 +16,7 @@ export async function GET(req: NextRequest) {
   const category = url.searchParams.get("category") ?? undefined;
 
   try {
+    ensureSeeded(seedPerfumes);
     const perfumes = await listPerfumes({
       q,
       category:
@@ -19,10 +26,33 @@ export async function GET(req: NextRequest) {
     });
 
     // If Supabase is empty (or not yet seeded), show sample data so the UI isn't blank.
-    return NextResponse.json({ perfumes: perfumes.length ? perfumes : seedPerfumes });
+    if (perfumes.length) {
+      return NextResponse.json({ perfumes: await withUnsplashImages(perfumes) });
+    }
+    return NextResponse.json({
+      perfumes: await withUnsplashImages(
+        listFromStore({
+          q,
+          category:
+            category === "collection" || category === "wishlist" || category === "sampled"
+              ? category
+              : undefined,
+        }),
+      ),
+    });
   } catch {
-    // If Supabase isn't configured yet, fall back to sample data.
-    return NextResponse.json({ perfumes: seedPerfumes });
+    // If Supabase isn't configured yet, fall back to in-memory seeded data.
+    return NextResponse.json({
+      perfumes: await withUnsplashImages(
+        listFromStore({
+          q,
+          category:
+            category === "collection" || category === "wishlist" || category === "sampled"
+              ? category
+              : undefined,
+        }),
+      ),
+    });
   }
 }
 
@@ -42,7 +72,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Missing or invalid perfume fields." }, { status: 400 });
   }
 
-  const created = await createPerfume(parsed.data);
-  return NextResponse.json({ perfume: created }, { status: 201 });
+  try {
+    const created = await createPerfume(parsed.data);
+    return NextResponse.json({ perfume: created }, { status: 201 });
+  } catch {
+    // No DB configured yet — keep mutations working via in-memory store.
+    const created = createInStore(parsed.data);
+    return NextResponse.json({ perfume: created }, { status: 201 });
+  }
 }
 

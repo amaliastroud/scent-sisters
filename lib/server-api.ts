@@ -22,6 +22,11 @@ export async function fetchPerfumesFromApi(opts?: {
 }): Promise<Perfume[]> {
   try {
     const base = await apiBaseUrl();
+
+    // Best-effort: seed the in-memory store once per runtime.
+    // This keeps Vercel deployments showing data even without a database.
+    await fetch(`${base}/api/admin/seed`, { cache: "no-store" }).catch(() => null);
+
     const url = new URL(`${base}/api/perfumes`);
     if (opts?.category) url.searchParams.set("category", opts.category);
     if (opts?.q) url.searchParams.set("q", opts.q);

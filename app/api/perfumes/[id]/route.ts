@@ -3,6 +3,13 @@ import { requireApiKey } from "@/lib/apiAuth";
 import { PerfumePatchSchema } from "@/lib/perfumeSchemas";
 import { deletePerfume, getPerfumeById, patchPerfume } from "@/lib/perfumeRepo";
 import { seedPerfumes } from "@/lib/perfumes";
+import {
+  deleteFromStore,
+  ensureSeeded,
+  getByIdFromStore,
+  patchInStore,
+} from "@/lib/inMemoryPerfumeStore";
+import { withUnsplashImage } from "@/lib/unsplash";
 
 export async function GET(
   _req: NextRequest,
@@ -10,15 +17,16 @@ export async function GET(
 ) {
   const { id } = await params;
   try {
+    ensureSeeded(seedPerfumes);
     const perfume = await getPerfumeById(id);
-    if (perfume) return NextResponse.json({ perfume });
+    if (perfume) return NextResponse.json({ perfume: await withUnsplashImage(perfume) });
   } catch {
     // ignore and fall back to seed
   }
 
-  const seed = seedPerfumes.find((p) => p.id === id) ?? null;
-  if (!seed) return NextResponse.json({ error: "Not found." }, { status: 404 });
-  return NextResponse.json({ perfume: seed });
+  const mem = getByIdFromStore(id);
+  if (!mem) return NextResponse.json({ error: "Not found." }, { status: 404 });
+  return NextResponse.json({ perfume: await withUnsplashImage(mem) });
 }
 
 export async function PATCH(
@@ -41,12 +49,19 @@ export async function PATCH(
     return NextResponse.json({ error: "Invalid update payload." }, { status: 400 });
   }
 
-  const updated = await patchPerfume(id, parsed.data);
-  if (!updated) {
-    return NextResponse.json({ error: "Not found." }, { status: 404 });
+  try {
+    const updated = await patchPerfume(id, parsed.data);
+    if (!updated) {
+      return NextResponse.json({ error: "Not found." }, { status: 404 });
+    }
+    return NextResponse.json({ perfume: updated });
+  } catch {
+    const updated = patchInStore(id, parsed.data);
+    if (!updated) {
+      return NextResponse.json({ error: "Not found." }, { status: 404 });
+    }
+    return NextResponse.json({ perfume: updated });
   }
-
-  return NextResponse.json({ perfume: updated });
 }
 
 export async function DELETE(
@@ -59,11 +74,18 @@ export async function DELETE(
   }
 
   const { id } = await params;
-  const deleted = await deletePerfume(id);
-  if (!deleted) {
-    return NextResponse.json({ error: "Not found." }, { status: 404 });
+  try {
+    const deleted = await deletePerfume(id);
+    if (!deleted) {
+      return NextResponse.json({ error: "Not found." }, { status: 404 });
+    }
+    return NextResponse.json({ deleted: true });
+  } catch {
+    const deleted = deleteFromStore(id);
+    if (!deleted) {
+      return NextResponse.json({ error: "Not found." }, { status: 404 });
+    }
+    return NextResponse.json({ deleted: true });
   }
-
-  return NextResponse.json({ deleted: true });
 }
 

@@ -1,5 +1,6 @@
 import { HolographicMedia } from "@/components/HolographicMedia";
 import { ScentSistersBottleMark } from "@/components/ScentSistersBottleMark";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -32,18 +33,18 @@ export default function Home() {
           </p>
 
           <div className="mt-12 flex flex-col justify-center gap-4 sm:mt-16 sm:flex-row sm:gap-5">
-            <button
-              type="button"
+            <Link
+              href="/collection"
               className="rounded-full border border-[rgba(196,113,122,0.5)] bg-[#FFFAF7]/95 px-10 py-4 text-base font-semibold text-[#C4717A] shadow-lg shadow-[rgba(196,113,122,0.18)] backdrop-blur-sm transition hover:bg-white sm:min-w-[11rem] sm:px-12 sm:py-[1.125rem] sm:text-lg"
             >
               Sign In
-            </button>
-            <button
-              type="button"
+            </Link>
+            <Link
+              href="/collection"
               className="rounded-full bg-[#C4717A] px-10 py-4 text-base font-semibold text-white shadow-lg shadow-[rgba(196,113,122,0.4)] transition hover:brightness-95 sm:min-w-[11rem] sm:px-12 sm:py-[1.125rem] sm:text-lg"
             >
               Join the sisterhood
-            </button>
+            </Link>
           </div>
 
           <p className="mt-14 text-sm tracking-[0.22em] text-[rgb(var(--muted))] sm:mt-16 sm:text-[0.8125rem]">

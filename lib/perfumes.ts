@@ -7,6 +7,7 @@ export type Perfume = {
   category: PerfumeCategory;
   rating: 1 | 2 | 3 | 4 | 5;
   review: string;
+  imageUrl?: string;
   notes: {
     top: string[];
     middle: string[];
