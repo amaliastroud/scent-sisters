@@ -233,6 +233,15 @@ function hashStable(s: string): number {
 export function perfumePlaceholderLayers(perfumeId: string): PerfumePlaceholderLayers {
   const direct = byId[perfumeId];
   if (direct) return direct;
+
+  // Seed data uses ids like `seed-1` — reuse the same curated palettes as numeric ids.
+  const seedMatch = /^seed-(\d+)$/.exec(perfumeId);
+  if (seedMatch) {
+    const numericId = seedMatch[1];
+    const fromSeed = byId[numericId];
+    if (fromSeed) return fromSeed;
+  }
+
   const h = hashStable(perfumeId);
   return fallbackPool[h % fallbackPool.length]!;
 }

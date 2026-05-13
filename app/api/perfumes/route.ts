@@ -8,7 +8,6 @@ import {
   ensureSeeded,
   listFromStore,
 } from "@/lib/inMemoryPerfumeStore";
-import { withUnsplashImages } from "@/lib/unsplash";
 
 export async function GET(req: NextRequest) {
   const url = new URL(req.url);
@@ -27,31 +26,27 @@ export async function GET(req: NextRequest) {
 
     // If Supabase is empty (or not yet seeded), show sample data so the UI isn't blank.
     if (perfumes.length) {
-      return NextResponse.json({ perfumes: await withUnsplashImages(perfumes) });
+      return NextResponse.json({ perfumes });
     }
     return NextResponse.json({
-      perfumes: await withUnsplashImages(
-        listFromStore({
-          q,
-          category:
-            category === "collection" || category === "wishlist" || category === "sampled"
-              ? category
-              : undefined,
-        }),
-      ),
+      perfumes: listFromStore({
+        q,
+        category:
+          category === "collection" || category === "wishlist" || category === "sampled"
+            ? category
+            : undefined,
+      }),
     });
   } catch {
     // If Supabase isn't configured yet, fall back to in-memory seeded data.
     return NextResponse.json({
-      perfumes: await withUnsplashImages(
-        listFromStore({
-          q,
-          category:
-            category === "collection" || category === "wishlist" || category === "sampled"
-              ? category
-              : undefined,
-        }),
-      ),
+      perfumes: listFromStore({
+        q,
+        category:
+          category === "collection" || category === "wishlist" || category === "sampled"
+            ? category
+            : undefined,
+      }),
     });
   }
 }

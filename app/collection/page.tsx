@@ -1,6 +1,7 @@
 import { Hero } from "@/components/Hero";
 import { PerfumeCard } from "@/components/PerfumeCard";
 import { fetchPerfumesFromApi } from "@/lib/server-api";
+import { TrackOnClick } from "@/components/TrackOnClick";
 
 export default async function CollectionPage() {
   const perfumes = await fetchPerfumesFromApi({ category: "collection" });
@@ -21,12 +22,14 @@ export default async function CollectionPage() {
               {perfumes.length} perfumes on your vanity
             </p>
           </div>
-          <button
-            type="button"
-            className="inline-flex items-center rounded-full border border-[rgb(var(--stroke))] bg-[rgb(var(--card))] px-5 py-2.5 text-sm font-medium text-[rgb(var(--ink))] shadow-sm transition hover:bg-white sm:self-auto"
-          >
-            Add to my rotation
-          </button>
+          <TrackOnClick eventName="add_to_rotation_click">
+            <button
+              type="button"
+              className="inline-flex items-center rounded-full border border-[rgb(var(--stroke))] bg-[rgb(var(--card))] px-5 py-2.5 text-sm font-medium text-[rgb(var(--ink))] shadow-sm transition hover:bg-white sm:self-auto"
+            >
+              Add to my rotation
+            </button>
+          </TrackOnClick>
         </div>
 
         {perfumes.length === 0 ? (

@@ -1,13 +1,13 @@
-import Link from "next/link";
-import Image from "next/image";
 import type { Perfume } from "@/lib/perfumes";
+import { PerfumeCardLink } from "@/components/PerfumeCardLink";
 import { PerfumePlaceholderGradient } from "@/components/PerfumePlaceholderGradient";
 import { StarRating } from "@/components/StarRating";
 
 export function PerfumeCard({ perfume }: { perfume: Perfume }) {
   return (
-    <Link
+    <PerfumeCardLink
       href={`/perfumes/${perfume.id}`}
+      perfumeId={perfume.id}
       className={[
         "group relative overflow-hidden rounded-3xl",
         "border border-[rgb(var(--stroke))] bg-[rgb(var(--card))]",
@@ -21,24 +21,7 @@ export function PerfumeCard({ perfume }: { perfume: Perfume }) {
 
       <div className="relative p-5">
         <div className="relative mb-4 overflow-hidden rounded-[1.25rem] border border-[rgb(var(--stroke))] bg-[rgb(var(--card))]">
-          {perfume.imageUrl ? (
-            <div className="relative aspect-[4/3] w-full">
-              <Image
-                src={perfume.imageUrl}
-                alt={`${perfume.brand} ${perfume.name}`}
-                fill
-                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                className="object-cover"
-                priority={false}
-              />
-              <div
-                className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(255,250,247,0.0)_0%,rgba(255,250,247,0.12)_60%,rgba(255,250,247,0.65)_100%)]"
-                aria-hidden
-              />
-            </div>
-          ) : (
-            <PerfumePlaceholderGradient perfume={perfume} />
-          )}
+          <PerfumePlaceholderGradient perfume={perfume} />
         </div>
 
         <div className="flex items-start justify-between gap-3">
@@ -94,6 +77,6 @@ export function PerfumeCard({ perfume }: { perfume: Perfume }) {
           ))}
         </div>
       </div>
-    </Link>
+    </PerfumeCardLink>
   );
 }

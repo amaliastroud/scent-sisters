@@ -3,6 +3,7 @@ import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { AppShell } from "@/components/AppShell";
 import { SprayCursor } from "@/components/SprayCursor";
+import { AnalyticsClient } from "@/components/AnalyticsClient";
 
 const display = Playfair_Display({
   subsets: ["latin"],
@@ -29,6 +30,7 @@ export default function RootLayout({
     <html lang="en" className={`${display.variable} ${sans.variable}`}>
       <body className="min-h-dvh font-[var(--font-sans)] antialiased">
         <AppShell>{children}</AppShell>
+        <AnalyticsClient />
         <SprayCursor />
       </body>
     </html>

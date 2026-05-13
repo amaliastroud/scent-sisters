@@ -9,7 +9,6 @@ import {
   getByIdFromStore,
   patchInStore,
 } from "@/lib/inMemoryPerfumeStore";
-import { withUnsplashImage } from "@/lib/unsplash";
 
 export async function GET(
   _req: NextRequest,
@@ -19,14 +18,14 @@ export async function GET(
   try {
     ensureSeeded(seedPerfumes);
     const perfume = await getPerfumeById(id);
-    if (perfume) return NextResponse.json({ perfume: await withUnsplashImage(perfume) });
+    if (perfume) return NextResponse.json({ perfume });
   } catch {
     // ignore and fall back to seed
   }
 
   const mem = getByIdFromStore(id);
   if (!mem) return NextResponse.json({ error: "Not found." }, { status: 404 });
-  return NextResponse.json({ perfume: await withUnsplashImage(mem) });
+  return NextResponse.json({ perfume: mem });
 }
 
 export async function PATCH(
